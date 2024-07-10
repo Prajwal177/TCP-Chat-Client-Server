@@ -6,15 +6,15 @@ clients = new Map();
 const server = net.createServer((socket) => {
     console.log('Client connected');
 
-    socket.write('Welcome to the group chat server!');
-    socket.write('Please enter your username to get started\n');
+    socket.write('Welcome to the group chat server!\n');
+    socket.write('Please enter your username to get started');
 
     socket.once('data', (data)=> {
         const clientUsername = data.toString().trim();
         clients.set(socket, clientUsername)
 
         socket.write(`Hello ${clientUsername}\n`);
-        broadcast(`User ${clientUsername} has joined the chat!\n`);
+        broadcast(`User ${clientUsername} has joined the chat!`);
 
         socket.on('data', (data)=> {
             const message = data.toString().trim();
@@ -26,14 +26,16 @@ const server = net.createServer((socket) => {
     });
 
     socket.on('end', ()=> {
-        const disconnectedUser = clients.get(socket);
-        broadcast(`${disconnectedUser} has left the chat :(`, socket);
-        clients.delete(socket);
+        handleClientDisconnect(socket);
         
     });
 
     socket.on('error', (err) => {
-        console.log(`Error: ${err.message}`);
+        if (err.code == 'ECONNRESET') {
+            handleClientDisconnect(socket);
+        } else {
+            console.log(`Error: ${err.message}`);
+        }
     });
 });
 
@@ -43,6 +45,13 @@ function broadcast(message, senderSocket = null) {
             socket.write(message);
         }
     });
+}
+
+
+function handleClientDisconnect(socket) {
+    const disconnectedUser = clients.get(socket);
+    broadcast(`${disconnectedUser} has left the chat :(`, socket);
+    clients.delete(socket);
 }
 
 const PORT = 3000;

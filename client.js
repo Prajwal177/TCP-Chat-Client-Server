@@ -6,24 +6,25 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
+let myUsername;
+
 const client = net.createConnection({ port: 3000 }, () => {
     console.log('Connected to chat server!');
 
-    rl.question('Please enter your username: ', (username) => {
-        client.write(username);
-        rl.setPrompt(`${username}: `);
-        rl.prompt();
+    rl.question('Enter your username: ', (username) => {
+        myUsername = username;
+        client.write(myUsername);
 
-        rl.on('line', (input) => {
-            client.write(input);
+        rl.prompt();
+        rl.on('line', (myText) => {
+            client.write(`${myUsername}: ${myText}`);
             rl.prompt();
         });
-
     });
 });
 
 client.on('data', (data) => {
-    console.log(data.toString());
+    console.log(data.toString());  
 });
 
 client.on('end', () => {

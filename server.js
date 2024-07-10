@@ -7,7 +7,6 @@ const server = net.createServer((socket) => {
     console.log('Client connected');
 
     socket.write('Welcome to the group chat server!\n');
-    socket.write('Please enter your username to get started');
 
     socket.once('data', (data)=> {
         const clientUsername = data.toString().trim();
@@ -34,7 +33,7 @@ const server = net.createServer((socket) => {
         if (err.code == 'ECONNRESET') {
             handleClientDisconnect(socket);
         } else {
-            console.log(`Error: ${err.message}`);
+            
         }
     });
 });
